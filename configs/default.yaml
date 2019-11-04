@@ -1,0 +1,20 @@
+# default config for kmeans run
+data_path: data/Mall_Customers.csv
+
+# columns we feed to kmeans
+features:
+  - Age
+  - Annual Income (k$)
+  - Spending Score (1-100)
+
+# elbow sweep
+k_min: 2
+k_max: 10
+
+random_state: 42
+scale_method: standard   # standard | minmax | none
+
+# final k for the saved model (chosen after eyeballing elbow)
+final_k: 5
+
+model_path: artifacts/kmeans.joblib

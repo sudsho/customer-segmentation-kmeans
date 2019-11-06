@@ -10,3 +10,12 @@ def fit_kmeans(X, k, random_state=42):
     km = KMeans(n_clusters=k, random_state=random_state, n_init=10)
     km.fit(X)
     return km
+
+
+def elbow(X, k_min, k_max, random_state=42):
+    """sweep k and return list of (k, inertia)."""
+    out = []
+    for k in range(k_min, k_max + 1):
+        km = fit_kmeans(X, k, random_state)
+        out.append((k, km.inertia_))
+    return out

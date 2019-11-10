@@ -4,6 +4,7 @@ import os
 import yaml
 import joblib
 from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
 
 from src.preprocess import load, select_features, scale
 
@@ -20,6 +21,15 @@ def elbow(X, k_min, k_max, random_state=42):
     for k in range(k_min, k_max + 1):
         km = fit_kmeans(X, k, random_state)
         out.append((k, km.inertia_))
+    return out
+
+
+def silhouette_sweep(X, k_min, k_max, random_state=42):
+    out = []
+    for k in range(max(2, k_min), k_max + 1):
+        km = fit_kmeans(X, k, random_state)
+        s = silhouette_score(X, km.labels_)
+        out.append((k, s))
     return out
 
 

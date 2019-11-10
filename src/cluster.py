@@ -48,6 +48,20 @@ def main():
     for k, inertia in sweep:
         print("k=%d  inertia=%.2f" % (k, inertia))
 
+    print("running silhouette sweep...")
+    sil = silhouette_sweep(Xs, cfg["k_min"], cfg["k_max"], cfg["random_state"])
+    for k, s in sil:
+        print("k=%d  silhouette=%.4f" % (k, s))
+
+    final_k = cfg.get("final_k", 5)
+    print("fitting final model with k=%d" % final_k)
+    km = fit_kmeans(Xs, final_k, cfg["random_state"])
+
+    out_path = cfg.get("model_path", "artifacts/kmeans.joblib")
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    joblib.dump({"model": km, "scaler": scaler, "features": cfg["features"]}, out_path)
+    print("saved to %s" % out_path)
+
 
 if __name__ == "__main__":
     main()

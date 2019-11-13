@@ -9,6 +9,7 @@ import joblib
 
 from src.preprocess import select_features, scale
 from src.cluster import elbow, silhouette_sweep
+from src.profile import cluster_summary
 from dashboard.figures import elbow_figure, silhouette_figure
 
 
@@ -26,23 +27,32 @@ def load_data():
         X = df[feats].values
         if scaler is not None:
             X = scaler.transform(X)
-        df["cluster"] = bundle["model"].predict(X).astype(str)
+        df["cluster"] = bundle["model"].predict(X)
     else:
-        df["cluster"] = "0"
+        df["cluster"] = 0
     return df
 
 
+def summary_table(df):
+    summary = cluster_summary(df, FEATURES)
+    header = [html.Th(c) for c in summary.columns]
+    rows = []
+    for _, row in summary.iterrows():
+        rows.append(html.Tr([html.Td(row[c]) for c in summary.columns]))
+    return html.Table([html.Thead(html.Tr(header)), html.Tbody(rows)])
+
+
 df = load_data()
+df["cluster_str"] = df["cluster"].astype(str)
 scatter = px.scatter(
     df,
     x="Annual Income (k$)",
     y="Spending Score (1-100)",
-    color="cluster",
+    color="cluster_str",
     hover_data=["Age", "Gender"],
     title="customers by cluster",
 )
 
-# elbow + silhouette computed live for the dashboard
 X_raw = select_features(df, FEATURES)
 Xs, _ = scale(X_raw, "standard")
 elbow_data = elbow(Xs, 2, 10)
@@ -60,6 +70,8 @@ app.layout = html.Div([
         dcc.Graph(id="elbow", figure=elbow_figure(elbow_data)),
         dcc.Graph(id="silhouette", figure=silhouette_figure(sil_data)),
     ]),
+    html.H3("per-cluster averages"),
+    summary_table(df),
 ])
 
 

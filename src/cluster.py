@@ -7,6 +7,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
 from src.preprocess import load, select_features, scale
+from src.io_utils import dump_json, ensure_dir
 
 
 def fit_kmeans(X, k, random_state=42):
@@ -58,9 +59,16 @@ def main():
     km = fit_kmeans(Xs, final_k, cfg["random_state"])
 
     out_path = cfg.get("model_path", "artifacts/kmeans.joblib")
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    ensure_dir(os.path.dirname(out_path))
     joblib.dump({"model": km, "scaler": scaler, "features": cfg["features"]}, out_path)
     print("saved to %s" % out_path)
+
+    metrics = {
+        "elbow": [{"k": int(k), "inertia": float(v)} for k, v in sweep],
+        "silhouette": [{"k": int(k), "score": float(v)} for k, v in sil],
+        "final_k": int(final_k),
+    }
+    dump_json(metrics, "artifacts/metrics.json")
 
 
 if __name__ == "__main__":

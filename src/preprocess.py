@@ -5,11 +5,18 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 def load(path):
     df = pd.read_csv(path)
+    # drop any all-null rows defensively
+    df = df.dropna(how="all")
     return df
 
 
 def select_features(df, features):
-    return df[features].copy()
+    sub = df[features].copy()
+    # fill any remaining numeric NaN with median to keep kmeans happy
+    for c in sub.columns:
+        if sub[c].isnull().any():
+            sub[c] = sub[c].fillna(sub[c].median())
+    return sub
 
 
 def scale(X, method="standard"):

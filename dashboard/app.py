@@ -9,7 +9,7 @@ import joblib
 
 from src.preprocess import select_features, scale
 from src.cluster import elbow, silhouette_sweep
-from src.profile import cluster_summary
+from src.profile import cluster_summary, add_personas
 from dashboard.figures import elbow_figure, silhouette_figure
 
 
@@ -29,12 +29,14 @@ def load_data():
             X = scaler.transform(X)
         df["cluster"] = bundle["model"].predict(X)
     else:
+        # fallback so the page still renders before training
         df["cluster"] = 0
     return df
 
 
 def summary_table(df):
     summary = cluster_summary(df, FEATURES)
+    summary = add_personas(summary)
     header = [html.Th(c) for c in summary.columns]
     rows = []
     for _, row in summary.iterrows():
@@ -76,4 +78,5 @@ app.layout = html.Div([
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    port = int(os.environ.get("PORT", 8050))
+    app.run_server(host="0.0.0.0", port=port, debug=False)

@@ -53,7 +53,7 @@ A Plotly Dash app under `dashboard/` shows:
 
 ![dashboard screenshot](docs/dashboard.png)
 
-(screenshot placeholder; png lives at `docs/dashboard.png` in the deploy.)
+See `docs/dashboard.png` for a screenshot of the running dashboard.
 
 ## setup
 

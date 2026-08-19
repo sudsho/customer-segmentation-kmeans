@@ -1,16 +1,21 @@
 """assign a new customer record to its cluster using the saved model."""
 import argparse
 import joblib
-import numpy as np
+import pandas as pd
 
 
 def assign(model_path, age, income, spending):
     bundle = joblib.load(model_path)
     km = bundle["model"]
     scaler = bundle["scaler"]
-    x = np.array([[age, income, spending]], dtype=float)
+    features = bundle.get("features", ["Age", "Annual Income (k$)", "Spending Score (1-100)"])
+    # build a one-row frame with the same column names the scaler was fit on
+    # so we don't trip sklearn's feature-name warning
+    x = pd.DataFrame([[age, income, spending]], columns=features)
     if scaler is not None:
         x = scaler.transform(x)
+    else:
+        x = x.values
     return int(km.predict(x)[0])
 
 

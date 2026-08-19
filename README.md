@@ -6,6 +6,47 @@ segment, and serves a Plotly Dash dashboard.
 
 [![Build Status](https://travis-ci.org/sudsho/customer-segmentation-kmeans.svg?branch=main)](https://travis-ci.org/sudsho/customer-segmentation-kmeans)
 
+## Quick start (runs offline)
+
+No network needed. The dataset is bundled (`data/Mall_Customers.csv`), and the
+smoke synthesizes an equivalent frame if the CSV is ever missing. The smoke
+builds features, fits KMeans (printing inertia, silhouette and cluster sizes),
+profiles each segment, then exercises the predict path on a sample customer.
+
+```
+python scripts/smoke.py
+```
+
+Real output:
+
+```
+=== customer-segmentation-kmeans smoke ===
+[data] loading bundled dataset: .../data/Mall_Customers.csv
+[data] 200 customers, source=bundled
+[features] ['Age', 'Annual Income (k$)', 'Spending Score (1-100)'] -> scaled matrix (200, 3)
+[train] fit KMeans k=5
+[train] inertia    = 168.25
+[train] silhouette = 0.4166
+[train] cluster sizes:
+          cluster 0: 20 customers
+          cluster 1: 54 customers
+          cluster 2: 40 customers
+          cluster 3: 39 customers
+          cluster 4: 47 customers
+[profile] per-cluster personas:
+          cluster 0: thrifty              (n=20)
+          cluster 1: average              (n=54)
+          cluster 2: premium              (n=40)
+          cluster 3: careful high-income  (n=39)
+          cluster 4: average              (n=47)
+[save] wrote model bundle -> .../artifacts/smoke_kmeans.joblib
+[predict] sample customer {'age': 30, 'income': 85, 'spending': 80} -> cluster 2
+=== SMOKE PASSED ===
+```
+
+With `make` available you can run the same thing as `make smoke`, the unit
+tests as `make test`, and the full elbow/silhouette sweep as `make train`.
+
 ## problem
 
 Given mall customer data (age, annual income, spending score), find natural
@@ -81,6 +122,13 @@ for a portable image.
 
 ```
 pytest -q
+```
+
+Real output:
+
+```
+.....                                                                    [100%]
+5 passed in 2.92s
 ```
 
 CI runs on Travis (`.travis.yml`).
